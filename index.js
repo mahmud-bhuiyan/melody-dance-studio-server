@@ -21,11 +21,21 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    //classes
     const classesCollection = client.db("melodyDB").collection("classes");
 
     //get all classes
     app.get("/classes", async (req, res) => {
       const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+
+    //reviews
+    const reviewsCollection = client.db("melodyDB").collection("reviews");
+
+    //get all reviews
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewsCollection.find().toArray();
       res.send(result);
     });
 
