@@ -44,14 +44,26 @@ async function run() {
     });
 
     // -----------------------------
-    //           cart
+    //           cart/enrolled
     // -----------------------------
     const cartCollection = client.db("melodyDB").collection("enrolled");
 
-    //add to cart
+    //add to enrolled
     app.post("/enrolled", async (req, res) => {
       const item = req.body;
       const result = await cartCollection.insertOne(item);
+      res.send(result);
+    });
+
+    // get all data from enrolled for specific email
+    app.get("/enrolled", async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        res.send([]);
+      }
+
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
       res.send(result);
     });
 
