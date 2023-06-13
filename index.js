@@ -21,7 +21,9 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    //classes
+    // -----------------------------
+    //           classes
+    // -----------------------------
     const classesCollection = client.db("melodyDB").collection("classes");
 
     //get all classes
@@ -30,12 +32,26 @@ async function run() {
       res.send(result);
     });
 
-    //reviews
+    // -----------------------------
+    //           reviews
+    // -----------------------------
     const reviewsCollection = client.db("melodyDB").collection("reviews");
 
     //get all reviews
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // -----------------------------
+    //           cart
+    // -----------------------------
+    const cartCollection = client.db("melodyDB").collection("enrolled");
+
+    //add to cart
+    app.post("/enrolled", async (req, res) => {
+      const item = req.body;
+      const result = await cartCollection.insertOne(item);
       res.send(result);
     });
 
