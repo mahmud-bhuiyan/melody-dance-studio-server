@@ -142,7 +142,7 @@ async function run() {
     });
 
     // ------------------------------
-    //      usersCollection
+    //         usersCollection
     // ------------------------------
     const usersCollection = client.db("melodyDB").collection("users");
 
@@ -171,6 +171,19 @@ async function run() {
       const updateDoc = {
         $set: {
           role: "admin",
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    //update user role to instructor
+    app.patch("/users/instructor/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: "instructor",
         },
       };
       const result = await usersCollection.updateOne(filter, updateDoc);
