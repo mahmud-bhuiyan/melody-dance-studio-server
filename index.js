@@ -45,7 +45,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // -----------------------------
-    //           jwt
+    //         jwt middleware
     // -----------------------------
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -56,6 +56,24 @@ async function run() {
     });
 
     // -----------------------------
+    //    verify admin middleware
+    // -----------------------------
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      if (user?.role === "admin") {
+        next();
+      } else if (user?.role === "instructor") {
+        next();
+      } else {
+        return res
+          .status(403)
+          .send({ error: true, message: "forbidden access" });
+      }
+    };
+
+    // -----------------------------
     //           classes
     // -----------------------------
     const classesCollection = client.db("melodyDB").collection("classes");
@@ -63,6 +81,13 @@ async function run() {
     //get all classes
     app.get("/classes", async (req, res) => {
       const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+
+    //store class
+    app.post("/classes", async (req, res) => {
+      const newClass = req.body;
+      const result = await classesCollection.insertOne(newClass);
       res.send(result);
     });
 
@@ -134,7 +159,7 @@ async function run() {
     });
 
     //get all users
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
