@@ -261,6 +261,47 @@ async function run() {
     });
 
     // ------------------------------
+    //        Admin Apis
+    // ------------------------------
+
+    //get admin stats verifyJWT, verifyAdmin,
+    app.get("/admin-stats", async (req, res) => {
+      const users = await usersCollection.estimatedDocumentCount();
+      const classes = await classesCollection.estimatedDocumentCount();
+      const orders = await classesCollection.estimatedDocumentCount();
+      const payments = await paymentCollection.find().toArray();
+      const revenue = payments.reduce((sum, payment) => sum + payment.price, 0);
+
+      res.send({ users, classes, orders, revenue });
+    });
+
+    //update classes status to approve
+    app.patch("/classes/approve/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: "approved",
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    //update classes status to denied
+    app.patch("/classes/deny/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: "denied",
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    // ------------------------------
     // ------------------------------
     await client.db("admin").command({ ping: 1 });
     console.log(
