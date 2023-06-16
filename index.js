@@ -93,6 +93,17 @@ async function run() {
     });
 
     // -----------------------------
+    //           payments
+    // -----------------------------
+    const paymentsCollection = client.db("melodyDB").collection("payments");
+
+    //get all payments
+    app.get("/payments", async (req, res) => {
+      const result = await paymentsCollection.find().toArray();
+      res.send(result);
+    });
+
+    // -----------------------------
     //           reviews
     // -----------------------------
     const reviewsCollection = client.db("melodyDB").collection("reviews");
@@ -299,6 +310,25 @@ async function run() {
       };
       const result = await classesCollection.updateOne(filter, updateDoc);
       res.send(result);
+    });
+
+    //add class feedback
+    app.patch("/classes/feedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          feedback: req.body.feedback,
+        },
+      };
+
+      try {
+        const result = await classesCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to add feedback.");
+      }
     });
 
     // ------------------------------
